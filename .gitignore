@@ -1,0 +1,5 @@
+﻿venv/
+__pycache__/
+*.pyc
+futbol.db
+kabatasfc-cebe8-default-rtdb-export.json
