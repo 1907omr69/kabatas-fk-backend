@@ -1,4 +1,4 @@
-﻿from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, JSON
+﻿from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, JSON, Boolean
 from datetime import datetime
 from database import Base
 
@@ -9,6 +9,7 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     username = Column(String, unique=True, nullable=False)
+    is_admin = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class Player(Base):

@@ -1,4 +1,4 @@
-﻿from fastapi import FastAPI, Depends, HTTPException, Body
+from fastapi import FastAPI, Depends, HTTPException, Body
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -112,3 +112,17 @@ def site_verisini_kaydet(veri: dict = Body(...), db: Session = Depends(get_db)):
         kayit.value = veri
     db.commit()
     return {"mesaj": "Kaydedildi"}
+
+@app.post("/admin-login")
+def admin_giris(bilgiler: dict = Body(...), db: Session = Depends(get_db)):
+    email = bilgiler.get("email")
+    password = bilgiler.get("password")
+
+    db_user = db.query(models.User).filter(models.User.email == email).first()
+
+    if not db_user or not db_user.is_admin or not auth.sifre_dogrula(password, db_user.hashed_password):
+        raise HTTPException(status_code=401, detail="Gecersiz admin bilgileri")
+
+    token = auth.token_olustur({"sub": db_user.email})
+
+    return {"access_token": token, "mesaj": "Admin girisi basarili"}
