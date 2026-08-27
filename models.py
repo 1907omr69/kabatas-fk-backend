@@ -57,3 +57,11 @@ class Tactic(Base):
     team = Column(String, nullable=False)
     formation = Column(String, nullable=True)
     slots = Column(JSON, nullable=True)
+
+class SiteData(Base):
+    __tablename__ = "site_data"
+
+    id = Column(Integer, primary_key=True, index=True)
+    key = Column(String, unique=True, nullable=False)
+    value = Column(JSON, nullable=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

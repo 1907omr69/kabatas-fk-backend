@@ -1,5 +1,6 @@
-﻿from fastapi import FastAPI, Depends, HTTPException
+﻿from fastapi import FastAPI, Depends, HTTPException, Body
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List
 import models
@@ -10,6 +11,14 @@ from database import engine, SessionLocal
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 security = HTTPBearer()
 
@@ -85,3 +94,21 @@ def takim_oyunculari(team: str, db: Session = Depends(get_db)):
 def maclari_listele(db: Session = Depends(get_db)):
     maclar = db.query(models.Match).all()
     return maclar
+
+@app.get("/site-data")
+def site_verisini_getir(db: Session = Depends(get_db)):
+    kayit = db.query(models.SiteData).filter(models.SiteData.key == "kabatasData").first()
+    if kayit is None:
+        return None
+    return kayit.value
+
+@app.post("/site-data")
+def site_verisini_kaydet(veri: dict = Body(...), db: Session = Depends(get_db)):
+    kayit = db.query(models.SiteData).filter(models.SiteData.key == "kabatasData").first()
+    if kayit is None:
+        kayit = models.SiteData(key="kabatasData", value=veri)
+        db.add(kayit)
+    else:
+        kayit.value = veri
+    db.commit()
+    return {"mesaj": "Kaydedildi"}
